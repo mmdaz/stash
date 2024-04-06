@@ -28,11 +28,7 @@ import (
 	"stash.appscode.dev/stash/pkg/controller"
 
 	"github.com/spf13/pflag"
-	licenseapi "go.bytebuilders.dev/license-verifier/apis/licenses/v1alpha1"
-	"go.bytebuilders.dev/license-verifier/info"
-	license "go.bytebuilders.dev/license-verifier/kubernetes"
 	crd_cs "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset"
-	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/client-go/kubernetes"
 	"kmodules.xyz/client-go/discovery"
 	appcatalog_cs "kmodules.xyz/custom-resources/client/clientset/versioned"
@@ -137,17 +133,6 @@ func (s *ExtraOptions) ApplyTo(cfg *controller.Config) error {
 		if cfg.OcClient, err = oc_cs.NewForConfig(cfg.ClientConfig); err != nil {
 			return err
 		}
-	}
-
-	if cfg.LicenseProvided() {
-		l := license.MustLicenseEnforcer(cfg.ClientConfig, cfg.LicenseFile).LoadLicense()
-		if l.Status != licenseapi.LicenseActive {
-			return fmt.Errorf("license status %s, reason: %s", l.Status, l.Reason)
-		}
-		if !sets.NewString(l.Features...).HasAny(info.Features()...) {
-			return fmt.Errorf("not a valid license for this product")
-		}
-		cfg.License = l
 	}
 
 	metrics.SetPushgatewayURL(s.PushgatewayURL)

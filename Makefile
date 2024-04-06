@@ -24,7 +24,7 @@ BIN      := stash
 COMPRESS ?= no
 
 # Where to push the docker image.
-REGISTRY ?= stashed
+REGISTRY ?= docker.yektanet.tech/tools
 
 # This version-strategy uses git tags to set the version string
 git_branch       := $(shell git rev-parse --abbrev-ref HEAD)
@@ -456,14 +456,6 @@ qa:
 
 .PHONY: release
 release:
-	@if [ "$$APPSCODE_ENV" != "prod" ]; then      \
-		echo "'release' only works in PROD env."; \
-		exit 1;                                   \
-	fi
-	@if [ "$(version_strategy)" != "tag" ]; then                    \
-		echo "apply tag to release binaries and/or docker images."; \
-		exit 1;                                                     \
-	fi
 	@$(MAKE) clean all-push docker-manifest --no-print-directory
 
 .PHONY: clean
